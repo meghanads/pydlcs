@@ -141,12 +141,13 @@ class Istream:
 
 class SIMU :
 
-	def __init__ (self,name, debug = 0, start = 0, step = 0, plots = 0):
+	def __init__ (self,name, debug = 0, start = 0, step = 0, plots = 0, pannotate = 0):
 		global DEBUG_SIMU
 		self.start = start
 		self.step = step
 		self.name = name
 		self.debug = debug
+		self.pannotate = pannotate
 		self.plots = plots
 		self.plists = []
 		self.pnames = []
@@ -191,6 +192,13 @@ class SIMU :
 				subplot(plts,1,i)
 				num = range(len(p))
 				step(num,p)
+
+				if self.pannotate:
+					k=0
+					for j in p:
+						annotate("%d" %(p[j]), xy=(k,p[j]))
+						k=k+1
+
 				title("plot : %s" %(self.pnames[i-1]))
 				ylim(-0.5,1.5)
 				i=i+1
@@ -198,14 +206,10 @@ class SIMU :
 			show()
 
 	def addplot (self,inpt):
-#		if type(inpt) != type([]):
-#			inpt = [inpt]
 		for p in inpt:
 			self.plists.append(p)
 
 	def addpname(self,inpt):
-#		if type(inpt) != type([]):
-#			inpt = [inpt]
 		for p in inpt:
 			self.pnames.append(p)
 			
