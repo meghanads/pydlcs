@@ -15,6 +15,12 @@
 #
 # =======================================================================
 
+# =======================
+# LIBRARIES: 
+# ======================
+
+from pylab import *
+
 # ===============
 # GLOBALS :
 # ===============
@@ -142,6 +148,8 @@ class SIMU :
 		self.name = name
 		self.debug = debug
 		self.plots = plots
+		self.plists = []
+		self.pnames = []
 		self.clk_out = Connector(self,'clk_out')
 		DEBUG_SIMU = self.debug
 		
@@ -154,9 +162,11 @@ class SIMU :
 				print "********************************************"
 
 				print "SIMULATOR: %s ==> Simulation Started...\n" %(self.name)
-		#	self.clk_out.set(0)	
 			while True :
 				if (STOP_SIMU):
+					if self.plots:
+						self.PlotLists()	# plotting
+
 					if (DEBUG_SIMU):
 						print "SIMULATOR: %s => Simulation Ended ...\n" %(self.name)
 					break
@@ -169,7 +179,38 @@ class SIMU :
 	
 
 	def evaluate (self):
-		pass	
+		pass
+
+	def PlotLists(self):
+		plts = len(self.plists)
+		if plts == 0:
+			print "ERROR: Nothing to Plot, please pass lists to plot %s.plists=<list-of-lists>\n" %(self.name)
+		else:
+			i=1
+			for p in self.plists:
+				subplot(plts,1,i)
+				num = range(len(p))
+				step(num,p)
+				title("plot : %s" %(self.pnames[i-1]))
+				ylim(-0.5,1.5)
+				i=i+1
+
+			show()
+
+	def addplot (self,inpt):
+#		if type(inpt) != type([]):
+#			inpt = [inpt]
+		for p in inpt:
+			self.plists.append(p)
+
+	def addpname(self,inpt):
+#		if type(inpt) != type([]):
+#			inpt = [inpt]
+		for p in inpt:
+			self.pnames.append(p)
+			
+
+
 			
 
 
