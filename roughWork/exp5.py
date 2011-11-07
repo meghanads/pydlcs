@@ -4,7 +4,8 @@
 #
 
 
-from gates import *
+#from gates import *
+from pydlcs import *
 
 sim = SIMU('sim1',start = 0, debug =1 , step =0)
 
