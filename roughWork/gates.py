@@ -19,8 +19,9 @@
 # GLOBAL : STOP
 # =============
 
-STOP_SIMU = 0
-TIME_SIMU = 20
+STOP_SIMU = 0	# STOP SIGNAL
+DEBUG_SIMU = 0	# DEBUG OPTION ON/OFF
+
 
 # ===================
 # CLASS	:	Connector
@@ -61,7 +62,6 @@ class Ostream:
 
 	#	pin - connected to o/p pin
 	#	toggle clock to change o/p
-	#
 	
 	def __init__(self, name,stream = 0) :
 		self.name = name
@@ -72,13 +72,19 @@ class Ostream:
 
 	def evaluate (self):
 		global STOP_SIMU
+		global DEBUG_SIMU
 		if self.clk_in and self.stream and (not STOP_SIMU):
-			self.data.append(self.data_in.value)
+			self.data.append(int(self.data_in.value))
+			if(DEBUG_SIMU) :
+				print "Ostream-%s => data = %d , buffer_data =" %(self.name, self.data_in.value)
+				print ''.join([str(item) for item in self.data])
+				print "\n\n"
 
 
 
 
 class Istream:
+	"""  This is Istream class 	"""
 
 	def __init__ (self,name,fname, stream = 0):
 		self.name = name
@@ -89,8 +95,6 @@ class Istream:
 		self.data = self.ReadFile()
 		self.data_curr = 0
 		self.data_max = len(self.data)
-#		print self.data_max
-#		self.stop_req = Connector(self,'stop_req', activates =1)
 
 	def ReadFile(self):
 		# read self.fname and convert to list ( with '\n' as last item
@@ -105,60 +109,61 @@ class Istream:
 
 	def evaluate (self):
 		global STOP_SIMU
-#		if self.data_max == 0:
-#			self.stop_req.set(1)	# stop simu
-#			STOP_SIMU = 1
-#		if self.data_curr >= self.data_max :
-#			STOP_SIMU = 1
-#			print "Data Exhausted..."
 		if self.clk_in  and self.stream  and (self.data_curr < self.data_max -1) and (self.data_max > 0) and (not STOP_SIMU):
-#			print STOP_SIMU
-#			if self.data_curr < self.data_max :
-			print "data_cutt = %d, data_max = %d" %(self.data_curr, self.data_max)
+			if (DEBUG_SIMU):
+				print "Istream-%s => data = %d, data_curr = %d, data_max = %d" %(self.name, int(self.data[self.data_curr]), self.data_curr+1, self.data_max-1)
 			self.data_out.set(int(self.data[self.data_curr]))
-			print self.data[self.data_curr]
 			self.data_curr = self.data_curr + 1
 		else:
-			print "Data Exhausted..."
+			if (DEBUG_SIMU):
+				print "Istream-%s => Data Exhausted..." %(self.name)
 			STOP_SIMU = 1
-#		if self.data_curr >= self.data_max:
-#			self.stop_req.set(1)	#stop the simulator
-#			STOP_SIMU = 1
-#			print "Data Exhausted..."
 
 
 
-
-
-#===============
-# CLASS : SIMU
-# ==============
+#==================
+# CLASS : SIMULATOR
+# =================
+#
+# Description:
+#		
+#		Require ONE instance per simulator.
+#
 
 class SIMU :
 
-	def __init__ (self,name, start = 0, step = 0):
+	def __init__ (self,name, debug = 0, start = 0, step = 0, plots = 0):
+		global DEBUG_SIMU
 		self.start = start
 		self.step = step
+		self.name = name
+		self.debug = debug
+		self.plots = plots
 		self.clk_out = Connector(self,'clk_out')
-		self.count = TIME_SIMU
-#		self.stop_simu = Connector(self,'stop_simu',activates =1)
-
+		DEBUG_SIMU = self.debug
+		
 	def simulate (self):
-		if self.start ==1:
-			print("Simulation Started...")
-			while self.count :
-				if STOP_SIMU == 1:
-					print(" Simulation Ended ...")
+		if self.start :
+			if (DEBUG_SIMU):
+				print "\n\n\n"
+				print "********************************************"
+				print "* pydlcs - Digital Logic Circuit Simulator *"
+				print "********************************************"
+
+				print("Simulation Started...\n")
+			self.clk_out.set(0)	
+			while True :
+				if (STOP_SIMU):
+					if (DEBUG_SIMU):
+						print("Simulation Ended ...\n")
 					break
 				else:
-					self.ToggleClk()
-					self.count = self.count - 1;
+					self.clk_out.set(not self.clk_out.value)
+					if (DEBUG_SIMU):
+						print"SIMU-%s => clk_out=%d" %(self.name, self.clk_out.value)
+		else:
+			print " Please set start flag : %s.start=%d\n" %(self.name, self.start)
 	
-	def ToggleClk(self) :
-		print self.clk_out.value
-		self.clk_out.set(not self.clk_out.value)
-
-		
 
 	def evaluate (self):
 		pass	
