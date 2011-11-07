@@ -15,17 +15,17 @@
 #
 # =======================================================================
 
-#=============
-# GLOBAL : STOP
-# =============
+# ===============
+# GLOBALS :
+# ===============
 
 STOP_SIMU = 0	# STOP SIGNAL
 DEBUG_SIMU = 0	# DEBUG OPTION ON/OFF
 
 
-# ===================
+# ====================
 # CLASS	:	Connector
-# ===================
+# ====================
 
 class Connector :
     # Connectors are inputs and outputs. Only outputs should connect
@@ -121,9 +121,9 @@ class Istream:
 
 
 
-#==================
+# ==================
 # CLASS : SIMULATOR
-# =================
+# ==================
 #
 # Description:
 #		
@@ -189,9 +189,9 @@ class LG :
 # =============
 
 
-# ========================
+# ==========================
 # CLASS	:	NOT GATE (Not)
-# ========================
+# ==========================
 class Not (LG) :         # Inverter. Input A. Output B.
     def __init__ (self, name) :
         LG.__init__ (self, name)
@@ -201,10 +201,10 @@ class Not (LG) :         # Inverter. Input A. Output B.
 
 
 
-# ================================
+# ===================================
 # CLASS : GATE2
 #		(2 INPUTS, 1 OUTPUT GATES)
-#=================================		
+#====================================		
 class Gate2 (LG) :         # two input gates. Inputs A and B. Output C.
     def __init__ (self, name) :
         LG.__init__ (self, name)
@@ -213,18 +213,18 @@ class Gate2 (LG) :         # two input gates. Inputs A and B. Output C.
         self.C = Connector(self,'C')
 
 
-# =========================
+# ============================
 # CLASS	:	AND GATE (And)
-# =========================
+# ============================
 class And (Gate2) :       # two input AND Gate
     def __init__ (self, name) :
         Gate2.__init__ (self, name)
     def evaluate (self) : self.C.set(self.A.value and self.B.value)
 
 
-# ======================
+# =========================
 # CLASS	:	OR GATE (Or)
-#=======================
+#==========================
 class Or (Gate2) :         # two input OR gate.
     def __init__ (self, name) :
         Gate2.__init__ (self, name)
@@ -232,9 +232,9 @@ class Or (Gate2) :         # two input OR gate.
 
 
 
-# ========================
+# ===========================
 # CLASS : NAND Gate (Nand)
-# ========================
+# ===========================
 class Nand (Gate2) :
 	def __init__ (self, name) :
 		Gate2.__init__ (self, name)
@@ -245,14 +245,14 @@ class Nand (Gate2) :
 
 
 
-# ================================================
+# ===================================================
 # DERIVED GATES:	GATES DERIVED FROM BASIC GATES
-# ================================================
+# ===================================================
 
 
-# ======================
+# =========================
 # CLASS : XOR GATE (Xor)
-# ======================
+# =========================
 class Xor (Gate2) :
     def __init__ (self, name) :
         Gate2.__init__ (self, name)
@@ -270,14 +270,14 @@ class Xor (Gate2) :
         self.O1.C.connect ([ self.C ])
 
 
-# ===========================
+# ==============================
 # COMINATIONAL LOGIC CIRCUITS
-# ===========================
+# ==============================
 
 
-# ================================
+# ===================================
 # CLASS :	HALF ADDER (HalfAdder)
-# ================================
+# ===================================
 class HalfAdder (LG) :         # One bit adder, A,B in. Sum and Carry out
     def __init__ (self, name) :
         LG.__init__ (self, name)
@@ -293,9 +293,9 @@ class HalfAdder (LG) :         # One bit adder, A,B in. Sum and Carry out
         self.A1.C.connect ([ self.C])
 
 
-# ==============================
+# =================================
 # CLASS : FULL ADDER (FullAdder)
-# ==============================
+# =================================
 
 class FullAdder (LG) :         # One bit adder, A,B,Cin in. Sum and Cout out
     def __init__ (self, name) :
