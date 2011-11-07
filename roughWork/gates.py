@@ -15,9 +15,12 @@
 #
 # =======================================================================
 
+#=============
+# GLOBAL : STOP
+# =============
 
-
-
+STOP_SIMU = 0
+TIME_SIMU = 20
 
 # ===================
 # CLASS	:	Connector
@@ -28,14 +31,13 @@ class Connector :
     # to inputs. Be careful NOT to have circular references
     # As an output is changed it propagates the change to its connected inputs
 
-    def __init__ (self, owner, name, activates=0, monitor=0, stream=0) :
+    def __init__ (self, owner, name, activates=0, monitor=0) :
         self.value = None
         self.owner = owner
         self.name  = name
         self.monitor  = monitor
         self.connects = []
         self.activates= activates   # If true change kicks evaluate function
-		self.stream = stream
 
     def connect (self, inputs) :
         if type(inputs) != type([]) : inputs = [inputs]
@@ -47,8 +49,121 @@ class Connector :
         self.value = value
         if self.activates : self.owner.evaluate()
         if self.monitor :
-            print "Connector %s-%s set to %d" % (self.owner.name,self.name,self.value)
+            print "Connector %s-%s set to %d" % (self.owner.name,self.name,self.value)	
         for con in self.connects : con.set(value)
+
+
+#===================
+# CLASS : STREAM
+# ==================
+
+class Ostream:
+
+	#	pin - connected to o/p pin
+	#	toggle clock to change o/p
+	#
+	
+	def __init__(self, name,stream = 0) :
+		self.name = name
+		self.data = []	# output data
+		self.stream = stream
+		self.clk_in = Connector(self,'clk_in', activates =1)
+		self.data_in = Connector(self,'data_in')
+
+	def evaluate (self):
+		global STOP_SIMU
+		if self.clk_in and self.stream and (not STOP_SIMU):
+			self.data.append(self.data_in.value)
+
+
+
+
+class Istream:
+
+	def __init__ (self,name,fname, stream = 0):
+		self.name = name
+		self.fname = fname
+		self.stream = stream
+		self.clk_in = Connector(self,'clk_in', activates = 1)
+		self.data_out = Connector(self,'data_out')
+		self.data = self.ReadFile()
+		self.data_curr = 0
+		self.data_max = len(self.data)
+#		print self.data_max
+#		self.stop_req = Connector(self,'stop_req', activates =1)
+
+	def ReadFile(self):
+		# read self.fname and convert to list ( with '\n' as last item
+		f = open(self.fname)
+		d = f.read()
+		data = []
+		for n in d:
+			data.append(n)
+		return data	
+
+
+
+	def evaluate (self):
+		global STOP_SIMU
+#		if self.data_max == 0:
+#			self.stop_req.set(1)	# stop simu
+#			STOP_SIMU = 1
+#		if self.data_curr >= self.data_max :
+#			STOP_SIMU = 1
+#			print "Data Exhausted..."
+		if self.clk_in  and self.stream  and (self.data_curr < self.data_max -1) and (self.data_max > 0) and (not STOP_SIMU):
+#			print STOP_SIMU
+#			if self.data_curr < self.data_max :
+			print "data_cutt = %d, data_max = %d" %(self.data_curr, self.data_max)
+			self.data_out.set(int(self.data[self.data_curr]))
+			print self.data[self.data_curr]
+			self.data_curr = self.data_curr + 1
+		else:
+			print "Data Exhausted..."
+			STOP_SIMU = 1
+#		if self.data_curr >= self.data_max:
+#			self.stop_req.set(1)	#stop the simulator
+#			STOP_SIMU = 1
+#			print "Data Exhausted..."
+
+
+
+
+
+#===============
+# CLASS : SIMU
+# ==============
+
+class SIMU :
+
+	def __init__ (self,name, start = 0, step = 0):
+		self.start = start
+		self.step = step
+		self.clk_out = Connector(self,'clk_out')
+		self.count = TIME_SIMU
+#		self.stop_simu = Connector(self,'stop_simu',activates =1)
+
+	def simulate (self):
+		if self.start ==1:
+			print("Simulation Started...")
+			while self.count :
+				if STOP_SIMU == 1:
+					print(" Simulation Ended ...")
+					break
+				else:
+					self.ToggleClk()
+					self.count = self.count - 1;
+	
+	def ToggleClk(self) :
+		print self.clk_out.value
+		self.clk_out.set(not self.clk_out.value)
+
+		
+
+	def evaluate (self):
+		pass	
+			
+
 
 
 # ==========================
