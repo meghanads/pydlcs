@@ -39,7 +39,7 @@ class Connector :
     # As an output is changed it propagates the change to its connected inputs
 
     def __init__ (self, owner, name, activates=0, monitor=0) :
-        self.value = None
+        self.value = 0
         self.owner = owner
         self.name  = name
         self.monitor  = monitor
@@ -141,7 +141,7 @@ class Istream:
 
 class SIMU :
 
-	def __init__ (self,name, debug = 0, start = 0, step = 0, plots = 0, pannotate = 0):
+	def __init__ (self,name, debug = 0, start = 0, step = 0, plots = 0, pclk = 0, pannotate = 0):
 		global DEBUG_SIMU
 		self.start = start
 		self.step = step
@@ -149,8 +149,10 @@ class SIMU :
 		self.debug = debug
 		self.pannotate = pannotate
 		self.plots = plots
+		self.pclk = pclk
 		self.plists = []
 		self.pnames = []
+		self.clk = []
 		self.clk_out = Connector(self,'clk_out')
 		DEBUG_SIMU = self.debug
 		
@@ -173,6 +175,7 @@ class SIMU :
 					break
 				else:
 					self.clk_out.set(not self.clk_out.value)
+					self.clk.append(self.clk_out.value)
 					if (DEBUG_SIMU):
 						print "SIMULATOR: %s => clk_out=%d" %(self.name, self.clk_out.value)
 		else:
@@ -189,19 +192,38 @@ class SIMU :
 		else:
 			i=1
 			for p in self.plists:
-				subplot(plts,1,i)
+				if self.pclk:
+					subplot(plts+1,1,i)
+				else:
+					subplot(plts,1,i)
 				num = range(len(p))
 				step(num,p)
 
 				if self.pannotate:
 					k=0
 					for j in p:
-						annotate("%d" %(p[j]), xy=(k,p[j]))
+						annotate("%d" %(p[j]), xy=(k+0.5,p[j]))
 						k=k+1
 
-				title("plot : %s" %(self.pnames[i-1]))
+				title("%s" %(self.pnames[i-1]))
 				ylim(-0.5,1.5)
 				i=i+1
+
+			if self.pclk:
+				subplot(plts+1,1,i)
+				num = range(len(self.clk))
+				step(num,self.clk)
+
+				if self.pannotate:
+					k=0
+					for j in self.clk:
+						annotate("%d" %(self.clk[j]), xy=(k+0.5,self.clk[j]))
+						k=k+1
+				title("clock")
+				ylim(-0.5,1.5)
+				
+
+
 
 			show()
 
