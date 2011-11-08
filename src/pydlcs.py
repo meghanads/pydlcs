@@ -168,6 +168,7 @@ class SIMU :
 			while True :
 				if (STOP_SIMU):
 					if self.plots:
+						del self.clk[-1]	# simulation ended @ last clock
 						self.PlotLists()	# plotting
 
 					if (DEBUG_SIMU):
@@ -202,11 +203,12 @@ class SIMU :
 				if self.pannotate:
 					k=0
 					for j in p:
-						annotate("%d" %(p[j]), xy=(k+0.5,p[j]))
+						annotate("%d" %(j), xy=(k-0.5,j))
 						k=k+1
 
 				title("%s" %(self.pnames[i-1]))
 				ylim(-0.5,1.5)
+				xlim(-1, len(p))
 				i=i+1
 
 			if self.pclk:
@@ -215,16 +217,14 @@ class SIMU :
 				step(num,self.clk)
 
 				if self.pannotate:
-					k=0
-					for j in self.clk:
-						annotate("%d" %(self.clk[j]), xy=(k+0.5,self.clk[j]))
-						k=k+1
+					kk=0
+					for jj in self.clk:
+						annotate("%d" %(jj), xy=(kk-0.5,jj))
+						kk=kk+1
 				title("clock")
 				ylim(-0.5,1.5)
+				xlim(-1,len(self.clk))
 				
-
-
-
 			show()
 
 	def addplot (self,inpt):
@@ -387,4 +387,45 @@ class FullAdder (LG) :         # One bit adder, A,B,Cin in. Sum and Cout out
         self.H2.S.connect ([ self.S])
         self.O1.C.connect ([ self.Cout])
 
+
+
+
+
+
+# ======================================================================================================
+#                        ************** Signal Sources ***************
+# ======================================================================================================
+
+
+# ===========================================
+# Clock: skips 'skip' cycles in input clock
+# ===========================================
+
+class Clock (LG):
+	# skips positive cycls = skip
+	def __init__(self, name, skip=0):
+		LG.__init__(self,name)
+		self.skip = skip
+		self.clk_out = Connector(self,'clk_out')
+		self.clk_in = Connector(self,'clk_in', activates = 1)
+		self.count = 0
+
+	def evaluate (self):
+		global DEBUG_SIMU
+		if(self.clk_in.value):
+			if(self.count != 0):
+				self.clk_out.set(0)
+				if(DEBUG_SIMU):
+					print "Clock: %s => skipping clock" %(self.name)
+				self.count = self.count - 1
+			else:
+				if (DEBUG_SIMU):
+					print "Clock: %s => passing clock" %(self.name)
+				self.clk_out.set(1)
+				self.count = self.skip
+		else:
+			self.clk_out.set(0)
+		
+
+				
 

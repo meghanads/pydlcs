@@ -6,7 +6,7 @@
 
 from pydlcs import *
 from pylab import *
-sim = SIMU('sim1',start = 0,plots = 1, debug =1 , step =0)
+sim = SIMU('sim1',start = 0,plots = 1, debug =1 ,pannotate = 1, step =0)
 
 I = Istream('IN', fname = 'inp', stream =1)
 O = Ostream('OUT', stream = 1)
