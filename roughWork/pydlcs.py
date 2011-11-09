@@ -141,10 +141,11 @@ class Istream:
 
 class SIMU :
 
-	def __init__ (self,name, debug = 0, start = 0, step = 0, plots = 0, pclk = 0, pannotate = 0):
+	def __init__ (self,name, debug = 0, start = 0, step = 0, plots = 0, pclk = 0, pannotate = 0, clocks = 0):
 		global DEBUG_SIMU
 		self.start = start
 		self.step = step
+		self.clocks = clocks
 		self.name = name
 		self.debug = debug
 		self.pannotate = pannotate
@@ -155,8 +156,10 @@ class SIMU :
 		self.clk = []
 		self.clk_out = Connector(self,'clk_out')
 		DEBUG_SIMU = self.debug
+		self.tclocks = self.clocks
 		
 	def simulate (self):
+		global STOP_SIMU
 		if self.start :
 			if (DEBUG_SIMU):
 				print "\n\n\n"
@@ -168,7 +171,8 @@ class SIMU :
 			while True :
 				if (STOP_SIMU):
 					if self.plots:
-						del self.clk[-1]	# simulation ended @ last clock
+						if (not self.clocks):
+							del self.clk[-1]	# simulation ended @ last clock
 						self.PlotLists()	# plotting
 
 					if (DEBUG_SIMU):
@@ -176,6 +180,14 @@ class SIMU :
 					break
 				else:
 					self.clk_out.set(not self.clk_out.value)
+
+					if self.clocks:
+						self.tclocks = self.tclocks - 1
+						if (not self.tclocks):
+							STOP_SIMU = 1
+							if (DEBUG_SIMU):
+								print "SIMULATOR : %s => clocks exhaused..."%(self.name)
+
 					self.clk.append(self.clk_out.value)
 					if (DEBUG_SIMU):
 						print "SIMULATOR: %s => clk_out=%d" %(self.name, self.clk_out.value)
