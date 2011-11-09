@@ -7,7 +7,7 @@
 from pydlcs import *
 
 # ================
-# DFlipFlop
+# D - FlipFlop
 # ================
 
 class DFlipFlop (LG):
@@ -25,3 +25,4 @@ class DFlipFlop (LG):
 			self.Q.set(self.D.value)
 		self.prev = self.C.value
 		
+

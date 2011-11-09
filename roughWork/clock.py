@@ -6,7 +6,7 @@ from pydlcs import *
 
 sim = SIMU('simu', plots =1, debug =1, pclk = 1, pannotate =1, clocks = 8)
 
-C = Clock('C', skip = 0)
+C = Clock('C', skip = 2)
 I = Istream('I', fname = 'inp', stream = 1)
 O = Ostream ('O', stream = 1)
 
