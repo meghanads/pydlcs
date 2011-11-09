@@ -287,7 +287,7 @@ class SIMU :
 				
 
 			if self.saveplots:
-				nname = str(self.saveplots)+".pdf"
+				nname = str(self.saveplots)
 				savefig(nname)
 
 			show()
