@@ -27,6 +27,7 @@ from pylab import *
 
 STOP_SIMU = 0	# STOP SIGNAL
 DEBUG_SIMU = 0	# DEBUG OPTION ON/OFF
+ERROR_SIMU = 0	# ANY ERROR OCCURED
 
 
 # ====================
@@ -69,18 +70,30 @@ class Ostream:
 	#	pin - connected to o/p pin
 	#	toggle clock to change o/p
 	
-	def __init__(self, name,stream = 0) :
+	def __init__(self, name,stream = 0,fname = 0) :
+		global DEBUG_SIMU
 		self.name = name
+		self.fname = fname
 		self.data = []	# output data
 		self.stream = stream
 		self.clk_in = Connector(self,'clk_in', activates =1)
 		self.data_in = Connector(self,'data_in')
+		if DEBUG_SIMU:
+			if self.fname:
+				print "\nOstream: %s => output file name - %s" %(self.name, self.fname)
+				self.fptr = open(fname,"w")
+
 
 	def evaluate (self):
 		global STOP_SIMU
 		global DEBUG_SIMU
 		if self.clk_in and self.stream and (not STOP_SIMU):
 			self.data.append(int(self.data_in.value))
+			if self.fname:
+				self.fptr.write(str(int(self.data_in.value)))
+			if STOP_SIMU:
+				self.fptr.close()
+
 			if(DEBUG_SIMU) :
 				print "Ostream: %s => data = %d , buffer_data =" %(self.name, self.data_in.value)
 				print ''.join([str(item) for item in self.data])
@@ -93,6 +106,7 @@ class Istream:
 	"""  This is Istream class 	"""
 
 	def __init__ (self,name,fname, stream = 0):
+		global DEBUG_SIMU
 		self.name = name
 		self.fname = fname
 		self.stream = stream
@@ -101,6 +115,10 @@ class Istream:
 		self.data = self.ReadFile()
 		self.data_curr = 0
 		self.data_max = len(self.data)
+
+		if DEBUG_SIMU:
+			print "\nIstream: %s => input file name - %s" %(self.name, self.fname)
+
 
 	def ReadFile(self):
 		# read self.fname and convert to list ( with '\n' as last item
@@ -143,6 +161,8 @@ class SIMU :
 
 	def __init__ (self,name, debug = 0, start = 0, step = 0, plots = 0, pclk = 0, pannotate = 0, clocks = 0):
 		global DEBUG_SIMU
+		global ERROR_SIMU
+		global STOP_SIMU
 		self.start = start
 		self.step = step
 		self.clocks = clocks
@@ -159,21 +179,38 @@ class SIMU :
 		self.tclocks = self.clocks
 		
 	def simulate (self):
-		global STOP_SIMU
 		if self.start :
 			if (DEBUG_SIMU):
 				print "\n\n\n"
 				print "********************************************"
 				print "* pydlcs - Digital Logic Circuit Simulator *"
-				print "********************************************"
+				print "********************************************\n"
+				print "_____________________________________________\n"
+				print "            SIMULATION SUMMARY: %s" %(self.name)
+				print "        ***NOTE: 0-DISABLED, 1-ENABLED***"
+				print "plots - %d" %(self.plots)
+				print "plot annotation - %d" %(self.pannotate)
+				print "simulation clock cycles - %d" %(self.clocks)
+				print "simulation start - %d" %(self.start)
+				print "simulation debug option - %d" %(self.debug)
+				print "simulation clock plot - %d" %(self.pclk)
+				print "step execution - %d" %(self.step)
+				print "______________________________________________\n"
+
 
 				print "SIMULATOR: %s ==> Simulation Started...\n" %(self.name)
 			while True :
+				global STOP_SIMU
+				global ERROR_SIMU
+
 				if (STOP_SIMU):
-					if self.plots:
-						if (not self.clocks):
-							del self.clk[-1]	# simulation ended @ last clock
-						self.PlotLists()	# plotting
+					if (not ERROR_SIMU):
+						if self.plots:
+							if (not self.clocks):
+								del self.clk[-1]	# simulation ended @ last clock
+							self.PlotLists()	# plotting
+					else:
+						print "SIMULATOR: %s => EXITED WITH ERROR ..." %(self.name)
 
 					if (DEBUG_SIMU):
 						print "SIMULATOR: %s => Simulation Ended ...\n" %(self.name)
@@ -421,6 +458,9 @@ class Clock (LG):
 		self.clk_out = Connector(self,'clk_out')
 		self.clk_in = Connector(self,'clk_in', activates = 1)
 		self.count = 0
+		if self.skip < 0:
+			ERROR_SIMU = 1
+			print "Clock: %s => ERROR - skip should be non-negative, skip = %d" %(self.name, self.skip)
 
 	def evaluate (self):
 		global DEBUG_SIMU
@@ -439,5 +479,30 @@ class Clock (LG):
 			self.clk_out.set(0)
 		
 
+# ==========================================
+# ConstSrc : constant source
+# =========================================
+
+class ConstSrc (LG):
+	def __init__(self, name, value = 0):
+		global STOP_SIMU
+		global DEBUG_SIMU
+		global ERROR_SIMU
+		LG.__init__(self,name)
+		self.value = value
+		self.data = []
+		self.clk_in = Connector(self,'clk_in', activates = 1)
+		self.data_out = Connector(self,'data_out')
+		if self.value > 1 or self.value < 0:
+			STOP_SIMU = 1
+			ERROR_SIMU = 1
+			print "ConstSrc: %s => ERROR - value should be 1 or 0, value =%d" %(self.name, self.value)
+
+		if DEBUG_SIMU:
+			print "ConstSrc: %s => value = %d" %(self.name, self.value)
+
+	def evaluate (self):
+		self.data_out.set(self.value)
+		self.data.append(self.data_out.value)
 				
 
