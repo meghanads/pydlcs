@@ -435,11 +435,11 @@ class HalfAdder (LG) :         # One bit adder, A,B in. Sum and Carry out
 class FullAdder (LG) :         # One bit adder, A,B,Cin in. Sum and Cout out
     def __init__ (self, name) :
         LG.__init__ (self, name)
-        self.A    = Connector(self,'A',1,monitor=1)
-        self.B    = Connector(self,'B',1,monitor=1)
-        self.Cin  = Connector(self,'Cin',1,monitor=1)
-        self.S    = Connector(self,'S',monitor=1)
-        self.Cout = Connector(self,'Cout',monitor=1)
+        self.A    = Connector(self,'A',activates = 1)
+        self.B    = Connector(self,'B',activates = 1)
+        self.Cin  = Connector(self,'Cin',activates = 1)
+        self.S    = Connector(self,'S')
+        self.Cout = Connector(self,'Cout')
         self.H1= HalfAdder("H1")
         self.H2= HalfAdder("H2")
         self.O1= Or("O1")
@@ -453,7 +453,57 @@ class FullAdder (LG) :         # One bit adder, A,B,Cin in. Sum and Cout out
         self.O1.C.connect ([ self.Cout])
 
 
+# ==================================
+# Mux : 2x1 MUX
+# ==================================
 
+class Mux (LG):
+	def __init__(self,name):
+		LG.__init__(self,name)
+		self.D1 = Connector(self,'D1', activates =1)
+		self.D0 = Connector(self,'D0', activates = 1)
+		self.C  = Connector(self,'C', activates = 1)
+		self.O = Connector(self,'O')
+
+		self.A1 = And('A1')
+		self.A2 = And('A2')
+		self.N = Not('N')
+		self.OR = Or('OR')
+
+		self.D1.connect([self.A1.A])
+		self.D0.connect([self.A2.A])
+		self.C.connect([self.N.A, self.A1.B])
+		self.N.B.connect([self.A2.B])
+		self.A1.C.connect([self.OR.A])
+		self.A2.C.connect([self.OR.B])
+		self.OR.C.connect([self.O])
+
+
+# =============================
+# Demux : 1x2
+# =============================
+
+class Demux(LG):
+	def __init__(self,name):
+		LG.__init__(self,name)
+		self.D = Connector(self,'D',activates = 1)
+		self.C = Connector(self,'C', activates = 1)
+		self.O1 = Connector(self,'O1')
+		self.O0 = Connector(self,'O0')
+
+		self.A1 = And('A1')
+		self.A0 = And('A0')
+		self.N = Not('N')
+
+		self.D.connect([self.A1.A, self.A0.A])
+		self.C.connect([self.A1.B, self.N.A])
+		self.N.B.connect([self.A0.B])
+		self.A0.C.connect([self.O0])
+		self.A1.C.connect([self.O1])
+
+
+
+		
 
 
 
@@ -521,4 +571,21 @@ class ConstSrc (LG):
 		self.data_out.set(self.value)
 		self.data.append(self.data_out.value)
 				
+# ========================================
+# EdgeDetector : toggle on edge
+# ========================================
 
+# Each data dets read twice if connected to istream 
+
+class EdgeClock (LG):
+	def __init__(self, name):
+		LG.__init__(self,name)
+		self.clk_in = Connector(self,'clk_in', activates = 1)
+		self.clk_out = Connector(self,'clk_out')
+		self.prev = 0
+
+	def evaluate (self):
+		if (self.prev > 0) and (self.clk_in < 1):
+			self.clk_out.set(not self.clk_out.value)
+		self.prev = self.clk_in.value
+		
