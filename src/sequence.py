@@ -71,3 +71,25 @@ class JKFlipFlop (LG):
 			self.Q.set(not self.Q.value)
 		self.prev = self.C.value
 
+
+# ==========================================
+# Frequencu Division by using T - FlipFlop
+# ==========================================
+
+class FD_TFlipFlop (LG):
+
+	def __init__(self, name):
+		LG.__init__(self,name)
+		self.T = Connector(self,'T')
+		self.Q = Connector(self,'Q')
+		self.C = Connector(self,'C', activates = 1)
+		self.Q.value = 0
+		self.prev = 0
+		#self.T.value
+		
+	def evaluate (self):
+		if (not self.C.value) and self.prev: 
+			self.Q.set(not self.Q.value)
+		self.prev = self.C.value
+		
+
