@@ -1,5 +1,9 @@
-# CIRCUIT: T flip Flop
+# CIRCUIT:
 #
+#	I_STREAM--->T Filp Flop---->O_STREAM
+#
+#	1. hi
+#	1. plotting working
 
 from sequence import *
 
