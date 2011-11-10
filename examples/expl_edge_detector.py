@@ -1,6 +1,6 @@
 # clock - checking clock source
 #
-# output - dumped to file
+#
 
 from pydlcs import *
 

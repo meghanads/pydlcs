@@ -1,5 +1,4 @@
 # clock - checking clock source
-#
 # MUX example
 
 from pydlcs import *

@@ -9,7 +9,7 @@
 #
 #  Define classes for	Connector, 
 #						Logic Gates ( AND, OR, NOT, XOR),
-#						Combinational Circuits (HalfAdder, FullAdder)
+#						Combinational Circuits (HalfAdder, FullAdder, Mux/Demux)
 #						Stream (input/output bit streams)
 #						Plotting
 #
@@ -588,6 +588,4 @@ class EdgeClock (LG):
 		if (self.prev > 0) and (self.clk_in < 1):
 			self.clk_out.set(not self.clk_out.value)
 		self.prev = self.clk_in.value
-		print " PREV = %d" %(self.prev)
 		
-

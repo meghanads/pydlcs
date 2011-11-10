@@ -9,7 +9,7 @@
 #
 #  Define classes for	Connector, 
 #						Logic Gates ( AND, OR, NOT, XOR),
-#						Combinational Circuits (HalfAdder, FullAdder)
+#						Combinational Circuits (HalfAdder, FullAdder, Mux/Demux)
 #						Stream (input/output bit streams)
 #						Plotting
 #
