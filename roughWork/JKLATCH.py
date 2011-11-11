@@ -20,4 +20,3 @@ class JK_LATCH (LG):
                        self.Q.set(not self.Q.value )
                 self.prev = self.C.value
 
-
