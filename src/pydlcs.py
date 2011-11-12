@@ -376,7 +376,20 @@ class Nand (Gate2) :
 	def evaluate (self) :
 		self.C.set(not(self.A.value and self.B.value))
 		
+#=========================================
+# CLASS : NAND3 Gate :3 terminal nand gate
+#=========================================
+class NAND3 (LG):
+ def __init__(self, name):
+                LG.__init__(self,name)
+                self.A = Connector(self,'A',activates=1)
+                self.B = Connector(self,'B',activates=1)
+                self.C = Connector(self,'C',activates=1)
+                self.D = Connector(self,'D')
 
+
+ def evaluate (self):
+               self.D.set(self.A.value and self.B.value and self.C.value)
 
 
 
