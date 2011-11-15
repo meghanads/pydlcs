@@ -12,7 +12,7 @@ O = Ostream ('O',fname = "opt", stream = 1)
 
 M = Mux('M')
 
-sim.clk_out.connect([I1.clk_in, I0.clk_in, M.C,  O.clk_in])
+sim.clk_out.connect([I1.clk_in, I0.clk_in, M.Sel,  O.clk_in])
 I1.data_out.connect([M.D1])
 I0.data_out.connect([M.D0])
 

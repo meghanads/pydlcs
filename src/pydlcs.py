@@ -376,20 +376,6 @@ class Nand (Gate2) :
 	def evaluate (self) :
 		self.C.set(not(self.A.value and self.B.value))
 		
-#=========================================
-# CLASS : NAND3 Gate :3 terminal nand gate
-#=========================================
-class NAND3 (LG):
- def __init__(self, name):
-                LG.__init__(self,name)
-                self.A = Connector(self,'A',activates=1)
-                self.B = Connector(self,'B',activates=1)
-                self.C = Connector(self,'C',activates=1)
-                self.D = Connector(self,'D')
-
-
- def evaluate (self):
-               self.D.set(self.A.value and self.B.value and self.C.value)
 
 
 
@@ -475,7 +461,7 @@ class Mux (LG):
 		LG.__init__(self,name)
 		self.D1 = Connector(self,'D1', activates =1)
 		self.D0 = Connector(self,'D0', activates = 1)
-		self.C  = Connector(self,'C', activates = 1)
+		self.Sel  = Connector(self,'Sel', activates = 1)
 		self.O = Connector(self,'O')
 
 		self.A1 = And('A1')
@@ -485,7 +471,7 @@ class Mux (LG):
 
 		self.D1.connect([self.A1.A])
 		self.D0.connect([self.A2.A])
-		self.C.connect([self.N.A, self.A1.B])
+		self.Sel.connect([self.N.A, self.A1.B])
 		self.N.B.connect([self.A2.B])
 		self.A1.C.connect([self.OR.A])
 		self.A2.C.connect([self.OR.B])
@@ -500,7 +486,7 @@ class Demux(LG):
 	def __init__(self,name):
 		LG.__init__(self,name)
 		self.D = Connector(self,'D',activates = 1)
-		self.C = Connector(self,'C', activates = 1)
+		self.Sel = Connector(self,'Sel', activates = 1)
 		self.O1 = Connector(self,'O1')
 		self.O0 = Connector(self,'O0')
 
@@ -509,14 +495,10 @@ class Demux(LG):
 		self.N = Not('N')
 
 		self.D.connect([self.A1.A, self.A0.A])
-		self.C.connect([self.A1.B, self.N.A])
+		self.Sel.connect([self.A1.B, self.N.A])
 		self.N.B.connect([self.A0.B])
 		self.A0.C.connect([self.O0])
 		self.A1.C.connect([self.O1])
-
-
-
-		
 
 
 
