@@ -5,7 +5,7 @@
 from pydlcs import *
 
 
-sim = SIMU('simu', plots =1, debug =1, pclk = 1, pannotate =1,)
+sim = SIMU('simu', plots =1, debug =1, pclk = 1, pannotate =1)
 
 C = Clock('C', skip = 2)
 I = Istream('I', fname = 'inp', stream = 1)
