@@ -1,7 +1,7 @@
 # CIRCUIT:
 # A 4 Bit Syncronous Binary Counter using JK Flip Flpos 
 
-from sequence import *
+from libpydlcs import *
 
 sim = SIMU('sim1',start = 0,plots = 1, debug =1, pclk = 1 , step =0, clocks=33)
 
