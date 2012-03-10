@@ -7,6 +7,10 @@
 #
 #  Logic Circuit Simulator 
 #
+#  Meghanad Shingate
+#  Nirbhay Rane
+#  Bharat Kumar
+#
 #  Define classes for	Connector, 
 #						Logic Gates ( AND, OR, NOT, XOR),
 #						Combinational Circuits (HalfAdder, FullAdder, Mux/Demux)
@@ -46,7 +50,7 @@ class Connector :
         self.name  = name
         self.monitor  = monitor
         self.connects = []
-        self.activates= activates   # If true change kicks evaluate function
+		self.activates= 0   # MEGH: If true change kicks evaluate function
 
     def connect (self, inputs) :
         if type(inputs) != type([]) : inputs = [inputs]
